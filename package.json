@@ -18,7 +18,10 @@
   },
   "homepage": "https://github.com/mc0918/BAMazon#readme",
   "dependencies": {
+    "chalk": "^2.4.2",
+    "cli-table2": "^0.2.0",
     "dotenv": "^7.0.0",
+    "figlet": "^1.2.1",
     "inquirer": "^6.2.2",
     "mysql": "^2.16.0"
   }

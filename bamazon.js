@@ -1,6 +1,9 @@
 require("dotenv").config();
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const figlet = require("figlet");
+const chalk = require("chalk");
+var Table = require("cli-table2");
 
 //Acess password to MySql
 //remember to specify in the readme that someone cloning the repo
@@ -25,6 +28,83 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId + "\n");
+  login();
+  connection.end();
 });
 
 console.log("database loaded!");
+
+//Functions to be called
+function login() {
+  let command = `SELECT * FROM products`;
+  connection.query(command, function(err, res) {
+    if (err) throw err;
+    var welcome = figlet.textSync("Welcome to \nBamazon!", {
+      font: "colossal",
+      horizontalLayout: "default",
+      verticalLayout: "default"
+    });
+    console.log(welcome);
+    //console.log(res);
+    var table = new Table({ head: ["Item ID", "Product", "Price"] });
+
+    //unfortunately you can't just loop because a new table row won't be created with each entry
+    //however, when people add new things, because they're adding one at a time, this is fine
+    table.push(
+      [res[0].item_id, res[0].product_name, `$${res[0].price}`],
+      [res[1].item_id, res[1].product_name, `$${res[1].price}`],
+      [res[2].item_id, res[2].product_name, `$${res[2].price}`],
+      [res[3].item_id, res[3].product_name, `$${res[3].price}`],
+      [res[4].item_id, res[4].product_name, `$${res[4].price}`],
+      [res[5].item_id, res[5].product_name, `$${res[5].price}`],
+      [res[6].item_id, res[6].product_name, `$${res[6].price}`],
+      [res[7].item_id, res[7].product_name, `$${res[7].price}`],
+      [res[8].item_id, res[8].product_name, `$${res[8].price}`],
+      [res[9].item_id, res[9].product_name, `$${res[9].price}`]
+    );
+
+    console.log(table.toString());
+
+    prompt1();
+  });
+}
+
+function prompt1() {
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "select an option",
+        choices: ["buy", "sell"],
+        name: "prompt1"
+      }
+    ])
+    .then(function(response1) {
+      switch (response1.prompt1) {
+        case "buy":
+          buySomething();
+          break;
+      }
+    });
+}
+
+function buySomething() {
+  inquirer
+    .prompt([
+      {
+        message: `enter id of product you want to buy (${chalk.red(
+          "must be a number!"
+        )})`,
+        name: "productID"
+      },
+      {
+        message: `how many units do you want to buy? (${chalk.red(
+          "must be a number!"
+        )})`,
+        name: "units"
+      }
+    ])
+    .then(function(buyResponse) {
+      console.log(buyResponse.productID, buyResponse.units);
+    });
+}
