@@ -34,7 +34,7 @@ connection.connect(function(err) {
 
 console.log("database loaded!");
 
-//Functions to be called
+//===================Functions to be called======================
 function login() {
   let command = `SELECT * FROM products`;
   connection.query(command, function(err, res) {
@@ -110,11 +110,15 @@ function buySomething() {
     });
 }
 
+//Takes the item id and number of units the user wants to buy and stores them
+//also generates a command for SQL to select the whole products table
 var queryDB = function(productID, units) {
   let preCommand = `SELECT * From PRODUCTS`;
   var units = units;
   console.log(units);
 
+  //Queries products to find the id of item being bought
+  //Also saves item id and units bought passed down from queryDB function
   function matchID() {
     connection.query(preCommand, function(err, res) {
       if (err) throw err;
@@ -125,19 +129,17 @@ var queryDB = function(productID, units) {
         if (res[i].item_id == productID) {
           var totalUnits = res[i].units;
           console.log("units in DB: ", totalUnits);
-          //tableRes is the item_id right now...
-          //units is the number of units the user wants to buy
-          //we need to find the number of units total before the user buys it
         }
       }
+      //Uses item id, total units, and units bought by user passed down by parent functions
       addToDB(productID, units, totalUnits);
     });
   }
   matchID();
 };
 
+//Updates database to reflect units bought and prints an error if not enough units are available to purchase
 var addToDB = function(id, purchasedUnits, totalUnits) {
-  //console.log(tableRes.units, purchasedUnits);
   console.log("addtoDB: ", totalUnits);
   var newUnits = +totalUnits - +purchasedUnits;
   console.log("new units:", newUnits);
