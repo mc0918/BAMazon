@@ -114,26 +114,37 @@ var queryDB = function(productID, units) {
   let preCommand = `SELECT * From PRODUCTS`;
   var units = units;
   console.log(units);
-  var tableRes = returnDB();
-  //NEED TO ITERATE THROUGH TABLERES RESULTS TO FIND THE RIGHT ITEM ID
-  //RIGHT NOW TABLERES IS AN OBJECT SO YOU CAN'T IMMEDIATELY DO MATH AFTER PASSING IT DOWN
 
-  function returnDB() {
+  function matchID() {
     connection.query(preCommand, function(err, res) {
       if (err) throw err;
-      console.log("UNITS!!!: ", units);
       console.log("RES: ", res);
-      return res;
+      console.log("ID WITHIN LOOP: ", productID);
+      //console.log(res[4].item_id);
+      for (i = 0; i < res.length; i++) {
+        if (res[i].item_id == productID) {
+          var totalUnits = res[i].units;
+          console.log("units in DB: ", totalUnits);
+          //tableRes is the item_id right now...
+          //units is the number of units the user wants to buy
+          //we need to find the number of units total before the user buys it
+        }
+      }
+      addToDB(productID, units, totalUnits);
     });
   }
-  addToDB(productID, units, tableRes);
+  matchID();
 };
 
-var addToDB = function(id, purchasedUnits, tableRes) {
+var addToDB = function(id, purchasedUnits, totalUnits) {
   //console.log(tableRes.units, purchasedUnits);
-  console.log(tableRes);
-  var newUnits = +tableRes.units - +purchasedUnits;
+  console.log("addtoDB: ", totalUnits);
+  var newUnits = +totalUnits - +purchasedUnits;
   console.log("new units:", newUnits);
   command = `UPDATE products SET units = ${newUnits} WHERE item_id = ${id}`;
-  console.log("Congrats! you just bought stuff!");
+  connection.query(command, function(err, res) {
+    if (err) throw err;
+    console.log("units remaining: ", res);
+    console.log("Congrats! you just bought stuff!");
+  });
 };
