@@ -29,7 +29,7 @@ connection.connect(function(err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId + "\n");
   login();
-  connection.end();
+  //connection.end();
 });
 
 console.log("database loaded!");
@@ -106,5 +106,34 @@ function buySomething() {
     ])
     .then(function(buyResponse) {
       console.log(buyResponse.productID, buyResponse.units);
+      queryDB(buyResponse.productID, buyResponse.units);
     });
 }
+
+var queryDB = function(productID, units) {
+  let preCommand = `SELECT * From PRODUCTS`;
+  var units = units;
+  console.log(units);
+  var tableRes = returnDB();
+  //NEED TO ITERATE THROUGH TABLERES RESULTS TO FIND THE RIGHT ITEM ID
+  //RIGHT NOW TABLERES IS AN OBJECT SO YOU CAN'T IMMEDIATELY DO MATH AFTER PASSING IT DOWN
+
+  function returnDB() {
+    connection.query(preCommand, function(err, res) {
+      if (err) throw err;
+      console.log("UNITS!!!: ", units);
+      console.log("RES: ", res);
+      return res;
+    });
+  }
+  addToDB(productID, units, tableRes);
+};
+
+var addToDB = function(id, purchasedUnits, tableRes) {
+  //console.log(tableRes.units, purchasedUnits);
+  console.log(tableRes);
+  var newUnits = +tableRes.units - +purchasedUnits;
+  console.log("new units:", newUnits);
+  command = `UPDATE products SET units = ${newUnits} WHERE item_id = ${id}`;
+  console.log("Congrats! you just bought stuff!");
+};
