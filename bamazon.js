@@ -90,7 +90,7 @@ function prompt1() {
       {
         type: "list",
         message: "select an option",
-        choices: ["buy", "sell", "quit"],
+        choices: ["buy", "quit"],
         name: "prompt1"
       }
     ])
@@ -191,7 +191,52 @@ var managerLogin = function() {
     .then(function(managerLogin) {
       if (managerLogin.password === managerPass) {
         console.log("groovy times cool diver");
-        connection.end();
+        managerPrompt();
+      }
+    });
+};
+
+var managerPrompt = function() {
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "What do you want to do?",
+        choices: [
+          "View products for sale",
+          "View low inventory",
+          "Add to inventory",
+          "Add new product",
+          "Logout"
+        ],
+        name: "manager"
+      }
+    ])
+    .then(function(response) {
+      switch (response.manager) {
+        case "View products for sale":
+          console.log("ok!");
+          let command = `SELECT * FROM products`;
+          connection.query(command, function(err, res) {
+            if (err) throw err;
+            //load table here
+          });
+          managerPrompt();
+          break;
+        case "View low inventory":
+          console.log("ok!");
+
+          break;
+        case "Add to inventory":
+          console.log("ok!");
+          break;
+        case "Add new product":
+          console.log("ok!");
+          break;
+        case "Logout":
+          console.log("ok!");
+          connection.end();
+          break;
       }
     });
 };
