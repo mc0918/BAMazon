@@ -10,6 +10,7 @@ var Table = require("cli-table2");
 //will need to make their own .env file with their own password for this program to work
 const pass = require("./password");
 const password = pass.password.id;
+var managerPass = pass.password.managerID;
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -28,8 +29,22 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId + "\n");
-  login();
-  //connection.end();
+  inquirer
+    .prompt([
+      {
+        type: "list",
+        message: "Login here",
+        choices: [chalk.bgWhite.bold.blue("User login"), "Manager login"],
+        name: "initial"
+      }
+    ])
+    .then(function(firstResponse) {
+      if (firstResponse.initial === "Manager login") {
+        managerLogin();
+      } else {
+        login();
+      }
+    });
 });
 
 console.log("database loaded!");
@@ -75,7 +90,7 @@ function prompt1() {
       {
         type: "list",
         message: "select an option",
-        choices: ["buy", "sell"],
+        choices: ["buy", "sell", "quit"],
         name: "prompt1"
       }
     ])
@@ -84,6 +99,12 @@ function prompt1() {
         case "buy":
           buySomething();
           break;
+        case "quit":
+          console.log("see ya later, alligator");
+          connection.end();
+          break;
+        default:
+          console.log("how and why are you seeing this?");
       }
     });
 }
@@ -124,14 +145,13 @@ var queryDB = function(productID, units) {
       if (err) throw err;
       console.log("RES: ", res);
       console.log("ID WITHIN LOOP: ", productID);
-      //console.log(res[4].item_id);
       for (i = 0; i < res.length; i++) {
         if (res[i].item_id == productID) {
           var totalUnits = res[i].units;
           console.log("units in DB: ", totalUnits);
         }
       }
-      //Uses item id, total units, and units bought by user passed down by parent functions
+      //Uses item id, total units, and units bought by user. All passed down by parent functions
       addToDB(productID, units, totalUnits);
     });
   }
@@ -142,11 +162,36 @@ var queryDB = function(productID, units) {
 var addToDB = function(id, purchasedUnits, totalUnits) {
   console.log("addtoDB: ", totalUnits);
   var newUnits = +totalUnits - +purchasedUnits;
-  console.log("new units:", newUnits);
-  command = `UPDATE products SET units = ${newUnits} WHERE item_id = ${id}`;
-  connection.query(command, function(err, res) {
-    if (err) throw err;
-    console.log("units remaining: ", res);
-    console.log("Congrats! you just bought stuff!");
-  });
+  if (newUnits < 0) {
+    console.log(
+      "Insufficient units! Buy Less! I know, can you believe that in 2019 we're telling you to buy less? Capitalism really has altered our worldviews, huh?"
+    );
+    prompt1();
+  } else {
+    console.log("new units:", newUnits);
+    command = `UPDATE products SET units = ${newUnits} WHERE item_id = ${id}`;
+    connection.query(command, function(err, res) {
+      if (err) throw err;
+      console.log("units remaining: ", res);
+      console.log("Congrats! you just bought stuff!");
+      prompt1();
+    });
+  }
+};
+
+//=======I don't need to make a new node application if I use .env============
+var managerLogin = function() {
+  inquirer
+    .prompt([
+      {
+        message: "Enter manager password",
+        name: "password"
+      }
+    ])
+    .then(function(managerLogin) {
+      if (managerLogin.password === managerPass) {
+        console.log("groovy times cool diver");
+        connection.end();
+      }
+    });
 };
