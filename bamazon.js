@@ -219,22 +219,26 @@ var managerPrompt = function() {
           let command = `SELECT * FROM products`;
           connection.query(command, function(err, res) {
             if (err) throw err;
-            //load table here
+            //Table will load here, displaying all info
           });
           managerPrompt();
           break;
         case "View low inventory":
           console.log("ok!");
-
+          //SQL command will be something like SELECT * FROM products WHERE units < 5.
           break;
         case "Add to inventory":
           console.log("ok!");
+          //Inquirer prompt asking what to add to and how many units
+          //Inquirer will pass down user input and a new function will use them to build a command to change the database
           break;
         case "Add new product":
           console.log("ok!");
+          //Similar to above, inquirer prompt asking for the required parameters (name, department, units)
+          //Then SQL command to add the new product to the database
           break;
         case "Logout":
-          console.log("ok!");
+          console.log("Get back to work!");
           connection.end();
           break;
       }
