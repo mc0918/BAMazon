@@ -126,7 +126,7 @@ function buySomething() {
       }
     ])
     .then(function(buyResponse) {
-      console.log(buyResponse.productID, buyResponse.units);
+      //console.log(buyResponse.productID, buyResponse.units);
       queryDB(buyResponse.productID, buyResponse.units);
     });
 }
@@ -136,15 +136,15 @@ function buySomething() {
 var queryDB = function(productID, units) {
   let preCommand = `SELECT * From PRODUCTS`;
   var units = units;
-  console.log(units);
+  //console.log(units);
 
   //Queries products to find the id of item being bought
   //Also saves item id and units bought passed down from queryDB function
   function matchID() {
     connection.query(preCommand, function(err, res) {
       if (err) throw err;
-      console.log("RES: ", res);
-      console.log("ID WITHIN LOOP: ", productID);
+      //console.log("RES: ", res);
+      //console.log("ID WITHIN LOOP: ", productID);
       for (i = 0; i < res.length; i++) {
         if (res[i].item_id == productID) {
           var totalUnits = res[i].units;
@@ -160,7 +160,7 @@ var queryDB = function(productID, units) {
 
 //Updates database to reflect units bought and prints an error if not enough units are available to purchase
 var addToDB = function(id, purchasedUnits, totalUnits) {
-  console.log("addtoDB: ", totalUnits);
+  //console.log("addtoDB: ", totalUnits);
   var newUnits = +totalUnits - +purchasedUnits;
   if (newUnits < 0) {
     console.log(
